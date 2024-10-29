@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.0;
 
-import { LibRLP } from "solady/src/utils/LibRLP.sol";
-import "forge-std/console2.sol";
+import { LibRLP } from "solady/utils/LibRLP.sol";
 
 library LibFacet {
     using LibRLP for LibRLP.List;
