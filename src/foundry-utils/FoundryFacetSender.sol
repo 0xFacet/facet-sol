@@ -8,8 +8,7 @@ import { console } from "forge-std/Test.sol";
 import { Script } from "forge-std/Script.sol";
 
 abstract contract FoundryFacetSender is Script {
-    uint256 public deployerNonce;
-    string public l2RpcUrl;
+    int256 public deployerNonce;
     
     modifier broadcast() {
         vm.startBroadcast(msg.sender);
@@ -18,7 +17,6 @@ abstract contract FoundryFacetSender is Script {
     }
 
     function setUp() public virtual {
-        l2RpcUrl = vm.envString("L2_RPC");
         deployerNonce = getL2Nonce();
     }
     
@@ -69,17 +67,27 @@ abstract contract FoundryFacetSender is Script {
     }
     
     function nextL2Address() internal returns (address) {
-        address addr = LibRLP.computeAddress(msg.sender, deployerNonce);
+        require(deployerNonce >= 0, "L2 RPC not set");
+        
+        address addr = LibRLP.computeAddress(msg.sender, uint256(deployerNonce));
         deployerNonce++;
         return addr;
     }
     
-    function getL2Nonce() internal returns (uint256) {
+    function getL2Nonce() internal returns (int256) {
+        // Try to get L2_RPC, returns empty string if not set
+        string memory rpcUrl = vm.envOr("L2_RPC", string(""));
+        
+        // If RPC URL is not set, return 0
+        if (bytes(rpcUrl).length == 0) {
+            return -1;
+        }
+
         // Store the current fork ID
         uint256 originalFork = vm.activeFork();
 
         // Create and select the L2 fork
-        uint256 l2Fork = vm.createFork(l2RpcUrl);
+        uint256 l2Fork = vm.createFork(rpcUrl);
         vm.selectFork(l2Fork);
 
         // Construct the JSON string for the RPC parameters
@@ -106,6 +114,6 @@ abstract contract FoundryFacetSender is Script {
         // Switch back to the original fork
         vm.selectFork(originalFork);
 
-        return nonce;
+        return int256(nonce);
     }
 }
