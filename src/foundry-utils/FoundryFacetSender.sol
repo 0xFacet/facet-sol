@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import { LibFacet } from "src/utils/LibFacet.sol";
+import { LibFacet } from "../utils/LibFacet.sol";
 
 abstract contract FoundryFacetSender {
     function sendFacetTransactionFoundry(
