@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import { LibRLP } from "lib/solady/src/utils/LibRLP.sol";
+import { LibRLP } from "../../lib/solady/src/utils/LibRLP.sol";
 
 library LibFacet {
     using LibRLP for LibRLP.List;
