@@ -7,13 +7,18 @@ import { LibRLP } from "../../lib/solady/src/utils/LibRLP.sol";
 import { console } from "forge-std/Test.sol";
 import { Script } from "forge-std/Script.sol";
 
-abstract contract FoundryFacetSender is Script {
+abstract contract FacetScript is Script {
     int256 public deployerNonce;
     
     modifier broadcast() {
         vm.startBroadcast(msg.sender);
         _;
         vm.stopBroadcast();
+    }
+    
+    modifier onlyFoundry() {
+        require(address(vm) != address(0), "Not in Foundry");
+        _;
     }
 
     function setUp() public virtual {
@@ -26,7 +31,7 @@ abstract contract FoundryFacetSender is Script {
         uint256 maxFeePerGas,
         uint256 gasLimit,
         bytes memory data
-    ) internal {
+    ) internal onlyFoundry {
         bytes memory payload = LibFacet.prepareFacetTransaction({
             to: to,
             value: value,
@@ -42,7 +47,7 @@ abstract contract FoundryFacetSender is Script {
     function sendFacetTransactionFoundry(
         uint256 gasLimit,
         bytes memory data
-    ) internal {
+    ) internal onlyFoundry {
         sendFacetTransactionFoundry({
             to: bytes(''),
             gasLimit: gasLimit,
