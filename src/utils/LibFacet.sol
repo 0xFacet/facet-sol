@@ -17,9 +17,9 @@ library LibFacet {
         sendFacetTransaction({
             to: bytes(''),
             value: 0,
-            maxFeePerGas: 10_000 gwei,
             gasLimit: gasLimit,
-            data: data
+            data: data,
+            mineBoost: bytes('')
         });
     }
 
@@ -31,18 +31,18 @@ library LibFacet {
         sendFacetTransaction({
             to: abi.encodePacked(to),
             value: 0,
-            maxFeePerGas: 10_000 gwei,
             gasLimit: gasLimit,
-            data: data
+            data: data,
+            mineBoost: bytes('')
         });
     }
 
     function prepareFacetTransaction(
         bytes memory to,
         uint256 value,
-        uint256 maxFeePerGas,
         uint256 gasLimit,
-        bytes memory data
+        bytes memory data,
+        bytes memory mineBoost
     ) internal view returns (bytes memory) {
         uint256 chainId;
 
@@ -59,21 +59,26 @@ library LibFacet {
         list.p(chainId);
         list.p(to);
         list.p(value);
-        list.p(maxFeePerGas);
         list.p(gasLimit);
         list.p(data);
-
+        list.p(mineBoost);
         return abi.encodePacked(facetTxType, list.encode());
     }
 
     function sendFacetTransaction(
         bytes memory to,
         uint256 value,
-        uint256 maxFeePerGas,
         uint256 gasLimit,
-        bytes memory data
+        bytes memory data,
+        bytes memory mineBoost
     ) internal {
-        bytes memory payload = prepareFacetTransaction(to, value, maxFeePerGas, gasLimit, data);
+        bytes memory payload = prepareFacetTransaction({
+            to: to,
+            value: value,
+            gasLimit: gasLimit,
+            data: data,
+            mineBoost: mineBoost
+        });
 
         assembly {
             log1(add(payload, 32), mload(payload), facetEventSignature)
