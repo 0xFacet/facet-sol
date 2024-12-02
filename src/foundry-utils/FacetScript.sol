@@ -110,9 +110,6 @@ abstract contract FacetScript is Script {
         // Convert the returned hex string to a uint256
         uint256 nonce = JSONParserLib.parseUintFromHex(vm.toString(returnData));
 
-        // Log the nonce
-        console.log("Nonce of", msg.sender, ":", nonce);
-
         // Switch back to the original fork
         vm.selectFork(originalFork);
 
