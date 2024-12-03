@@ -28,16 +28,15 @@ abstract contract FacetScript is Script {
     function sendFacetTransactionFoundry(
         bytes memory to,
         uint256 value,
-        uint256 maxFeePerGas,
         uint256 gasLimit,
         bytes memory data
     ) internal onlyFoundry {
         bytes memory payload = LibFacet.prepareFacetTransaction({
             to: to,
             value: value,
-            maxFeePerGas: maxFeePerGas,
             gasLimit: gasLimit,
-            data: data
+            data: data,
+            mineBoost: bytes('')
         });
 
         (bool success, ) = LibFacet.facetInboxAddress.call(payload);
@@ -52,7 +51,6 @@ abstract contract FacetScript is Script {
             to: bytes(''),
             gasLimit: gasLimit,
             value: 0,
-            maxFeePerGas: 10_000 gwei,
             data: data
         });
     }
@@ -66,7 +64,6 @@ abstract contract FacetScript is Script {
             to: abi.encodePacked(to),
             gasLimit: gasLimit,
             value: 0,
-            maxFeePerGas: 10_000 gwei,
             data: data
         });
     }
@@ -112,9 +109,6 @@ abstract contract FacetScript is Script {
 
         // Convert the returned hex string to a uint256
         uint256 nonce = JSONParserLib.parseUintFromHex(vm.toString(returnData));
-
-        // Log the nonce
-        console.log("Nonce of", msg.sender, ":", nonce);
 
         // Switch back to the original fork
         vm.selectFork(originalFork);
