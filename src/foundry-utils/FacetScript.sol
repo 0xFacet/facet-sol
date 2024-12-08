@@ -68,7 +68,7 @@ abstract contract FacetScript is Script {
         });
     }
     
-    function nextL2Address() internal returns (address) {
+    function nextL2Address() public returns (address) {
         require(deployerNonce >= 0, "L2 RPC not set");
         
         address addr = LibRLP.computeAddress(msg.sender, uint256(deployerNonce));
@@ -76,7 +76,7 @@ abstract contract FacetScript is Script {
         return addr;
     }
     
-    function getL2Nonce() internal returns (int256) {
+    function getL2Nonce() public returns (int256) {
         // Try to get L2_RPC, returns empty string if not set
         string memory rpcUrl = vm.envOr("L2_RPC", string(""));
         
@@ -85,8 +85,13 @@ abstract contract FacetScript is Script {
             return -1;
         }
 
-        // Store the current fork ID
-        uint256 originalFork = vm.activeFork();
+        uint256 originalFork;
+
+        try vm.activeFork() returns (uint256 fork) {
+            originalFork = fork;
+        } catch {
+            return -1;
+        }
 
         // Create and select the L2 fork
         uint256 l2Fork = vm.createFork(rpcUrl);
