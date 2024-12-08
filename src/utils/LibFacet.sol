@@ -38,6 +38,25 @@ library LibFacet {
     }
 
     function prepareFacetTransaction(
+        uint256 chainId,
+        bytes memory to,
+        uint256 value,
+        uint256 gasLimit,
+        bytes memory data,
+        bytes memory mineBoost
+    ) internal pure returns (bytes memory) {
+        LibRLP.List memory list;
+
+        list.p(chainId);
+        list.p(to);
+        list.p(value);
+        list.p(gasLimit);
+        list.p(data);
+        list.p(mineBoost);
+        return abi.encodePacked(facetTxType, list.encode());
+    }
+
+    function prepareFacetTransaction(
         bytes memory to,
         uint256 value,
         uint256 gasLimit,
@@ -54,15 +73,14 @@ library LibFacet {
             revert("Unsupported chainId");
         }
 
-        LibRLP.List memory list;
-
-        list.p(chainId);
-        list.p(to);
-        list.p(value);
-        list.p(gasLimit);
-        list.p(data);
-        list.p(mineBoost);
-        return abi.encodePacked(facetTxType, list.encode());
+        return prepareFacetTransaction({
+            chainId: chainId,
+            to: to,
+            value: value,
+            gasLimit: gasLimit,
+            data: data,
+            mineBoost: mineBoost
+        });
     }
 
     function sendFacetTransaction(
